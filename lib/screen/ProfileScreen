@@ -1,0 +1,47 @@
+import 'dart:convert';
+import 'dart:math';
+import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import '../model/User';
+import '../model/Album';
+import '../widget/AlbumsList';
+import './AlbumDetailsScreen';
+class ProfileScreen extends StatelessWidget {
+  final User user;
+
+  ProfileScreen({required this.user});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Profile'),
+      ),
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Name: ${user.name}',
+                  style: TextStyle(fontSize: 18),
+                ),
+                SizedBox(height: 8),
+                Text(
+                  'Address: ${user.address}',
+                  style: TextStyle(fontSize: 18),
+                ),
+              ],
+            ),
+          ),
+          Expanded(
+            child: AlbumsList(userId: user.id),
+          ),
+        ],
+      ),
+    );
+  }
+}

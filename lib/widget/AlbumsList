@@ -1,0 +1,59 @@
+import 'dart:convert';
+import 'dart:math';
+import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import '../model/User';
+import '../model/Album';
+import '../model/Photo';
+import '../screen/AlbumDetailsScreen';
+class AlbumsList extends StatelessWidget {
+  final int userId;
+
+  AlbumsList({required this.userId});
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<List<Album>>(
+      future: fetchAlbums(userId),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Center(child: CircularProgressIndicator());
+        } else if (snapshot.hasError) {
+          return Center(child: Text('Error: ${snapshot.error}'));
+        } else if (snapshot.hasData) {
+          final albums = snapshot.data!;
+          return ListView.builder(
+            itemCount: albums.length,
+            itemBuilder: (context, index) {
+              final album = albums[index];
+              return ListTile(
+                title: Text(album.title),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => AlbumDetailsScreen(album: album),
+                    ),
+                  );
+                },
+              );
+            },
+          );
+        } else {
+          return Center(child: Text('No albums found.'));
+        }
+      },
+    );
+  }
+
+  Future<List<Album>> fetchAlbums(int userId) async {
+    final response = await http.get(Uri.parse(
+        'https://jsonplaceholder.typicode.com/albums?userId=$userId'));
+    if (response.statusCode == 200) {
+      final jsonList = json.decode(response.body) as List;
+      return jsonList.map((json) => Album.fromJson(json)).toList();
+    } else {
+      throw Exception('Failed to load albums');
+    }
+  }
+}
